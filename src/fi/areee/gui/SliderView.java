@@ -5,6 +5,9 @@
  */
 package fi.areee.gui;
 
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.UndoManager;
+
 /**
  *
  * @author ylhaart
@@ -16,6 +19,7 @@ public class SliderView extends javax.swing.JFrame {
      */
     public SliderView() {
         initComponents();
+        numberLabel.setText("" + numberSlider.getValue());
     }
 
     /**
@@ -27,21 +31,167 @@ public class SliderView extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        numberSlider = new javax.swing.JSlider();
+        numberLabel = new javax.swing.JLabel();
+        numberButton = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        fileMenu = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        editMenu = new javax.swing.JMenu();
+        undoMenu = new javax.swing.JMenuItem();
+        redoMenu = new javax.swing.JMenuItem();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        numberSlider.setMajorTickSpacing(50);
+        numberSlider.setMaximum(255);
+        numberSlider.setPaintLabels(true);
+        numberSlider.setPaintTicks(true);
+        numberSlider.setValue(0);
+        numberSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                numberSliderStateChanged(evt);
+            }
+        });
+
+        numberLabel.setText("jLabel1");
+
+        numberButton.setText("Show value");
+        numberButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                numberButtonActionPerformed(evt);
+            }
+        });
+
+        fileMenu.setText("File");
+
+        jMenuItem1.setText("Exit");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        fileMenu.add(jMenuItem1);
+
+        jMenuBar1.add(fileMenu);
+
+        editMenu.setText("Edit");
+
+        undoMenu.setText("Undo");
+        undoMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                undoMenuActionPerformed(evt);
+            }
+        });
+        editMenu.add(undoMenu);
+
+        redoMenu.setText("Redo");
+        redoMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                redoMenuActionPerformed(evt);
+            }
+        });
+        editMenu.add(redoMenu);
+
+        jMenuBar1.add(editMenu);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(numberSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(244, 244, 244)
+                .addComponent(numberButton)
+                .addGap(18, 18, 18)
+                .addComponent(numberLabel)
+                .addContainerGap(309, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(numberSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(numberButton)
+                    .addComponent(numberLabel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        dispose();
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void numberSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_numberSliderStateChanged
+        if (!numberSlider.getValueIsAdjusting()) {
+            String oldValue = numberLabel.getText();
+            String newValue = Integer.toString(numberSlider.getValue());
+            if (!undoing) {
+                undos.addEdit(new AbstractUndoableEdit() {
+                    @Override
+                    public void undo() {
+                        // Implementing this method would be 
+                        // the minimal requirement to support
+                        // undo.
+                        super.undo(); // This must be called since it maintains hasBeenDone status.
+                        undoing = true; // this class variable demonstrate a simple way to avoid reacting to events caused by your own code. Not the most elegant solutions but simple.
+                        // Undo the label text
+                        numberLabel.setText(oldValue);
+                        numberSlider.setValue(Integer.parseInt(oldValue));
+                        undoing = false;
+                    }
+
+                    @Override
+                    public void redo() {
+                        super.redo();
+                        undoing = true;
+                        numberLabel.setText(newValue);
+                        numberSlider.setValue(Integer.parseInt(newValue));
+                        undoing = false;
+                    }
+
+                    @Override
+                    public String getPresentationName() {
+                        // AbstractUndoableEdit uses this string
+                        // to build UndoPresentationName and 
+                        // RedoPresentationName which can then be put 
+                        // into menu, buttons etc.
+                        return "Driven distance";
+                    }
+                });
+
+            }
+//            numberLabel.setText(newValue);
+            updateUndoStatus();
+        }
+    }//GEN-LAST:event_numberSliderStateChanged
+
+    private void numberButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numberButtonActionPerformed
+        numberLabel.setText("" + numberSlider.getValue());
+    }//GEN-LAST:event_numberButtonActionPerformed
+
+    private void undoMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_undoMenuActionPerformed
+        if (undos.canUndo()) {
+            undos.undo();
+        }
+        updateUndoStatus();
+    }//GEN-LAST:event_undoMenuActionPerformed
+
+    private void redoMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_redoMenuActionPerformed
+        if (undos.canRedo()) {
+            undos.redo();
+        }
+        updateUndoStatus();
+    }//GEN-LAST:event_redoMenuActionPerformed
 
     /**
      * @param args the command line arguments
@@ -79,5 +229,23 @@ public class SliderView extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu editMenu;
+    private javax.swing.JMenu fileMenu;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JButton numberButton;
+    private javax.swing.JLabel numberLabel;
+    private javax.swing.JSlider numberSlider;
+    private javax.swing.JMenuItem redoMenu;
+    private javax.swing.JMenuItem undoMenu;
     // End of variables declaration//GEN-END:variables
+    UndoManager undos = new UndoManager();
+    boolean undoing = false;
+
+    private void updateUndoStatus() {
+        undoMenu.setEnabled(undos.canUndo());
+        redoMenu.setEnabled(undos.canRedo());
+        undoMenu.setText(undos.getUndoPresentationName());
+        redoMenu.setText(undos.getRedoPresentationName());
+    }
 }
